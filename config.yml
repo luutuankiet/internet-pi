@@ -1,6 +1,6 @@
 ---
 # Location where configuration files will be stored.
-config_dir: '~'
+config_dir: '~/dev/pi-dash/internet-pi-conf'
 
 # Domain names configuration (related services need to be enabled).
 domain_name_enable: false
@@ -12,25 +12,29 @@ domain_prometheus: 'prometheus'  # to access prometheus via: http://prometheus.h
 # Pi-hole configuration.
 pihole_enable: false
 pihole_hostname: pihole
-pihole_timezone: America/Chicago
-pihole_password: "change-this-password"
+pihole_timezone: Asia/Ho_Chi_Minh
+pihole_password: "659142"
 
 # Internet monitoring configuration.
 monitoring_enable: true
-monitoring_grafana_admin_password: "admin"
-monitoring_speedtest_interval: 60m
-monitoring_ping_interval: 5s
+monitoring_grafana_admin_password: "Boyluu96@"
+monitoring_speedtest_interval: 120m
+monitoring_ping_interval: 120s
 monitoring_ping_hosts:  # [URL];[HUMAN_READABLE_NAME]
-  - http://www.google.com/;google.com
+  - https://google.com/;google.com
   - https://github.com/;github.com
-  - https://www.apple.com/;apple.com
+  - https://duckdns.org;duckdns
+  - https://apple.com/;apple.com
+  - https://ken-nas.duckdns.org;nas-omv
+  - https://ld.ken-nas.duckdns.org;ld
+  - https://nginx.ken-nas.duckdns.org;nginx-nas
 
 # Prometheus configuration.
 prometheus_monitor_prometheus: false
 prometheus_node_exporter_targets:
   - 'nodeexp:9100'
 prometheus_extra_scrape_configs: ''
-prometheus_tsdb_retention_time: 90d
+prometheus_tsdb_retention_time: 60d
 
 # Shelly Plug configuration. (Also requires `monitoring_enable`)
 shelly_plug_enable: false
