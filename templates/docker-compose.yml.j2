@@ -14,7 +14,7 @@ services:
 {% if domain_name_enable %}
   nginx-proxy:
     image: nginxproxy/nginx-proxy:latest
-    restart: always
+    restart: unless-stopped
     ports:
       - "80:80"
     networks:
@@ -27,7 +27,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    restart: always
+    restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./prometheus/:/etc/prometheus/
@@ -40,22 +40,19 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - 9090:9090
-    links:
-      - ping:ping
-      - speedtest:speedtest
     networks:
       - back-tier
-{% if domain_name_enable and domain_name and domain_prometheus %}
+    {% if domain_name_enable and domain_name and domain_prometheus %}
     depends_on:
       - nginx-proxy
     environment:
       - VIRTUAL_HOST={{ domain_prometheus }}.{{ domain_name }}
       - VIRTUAL_PORT=9090
-{% endif %}
+    {% endif %}
 
   grafana:
     image: grafana/grafana:latest
-    restart: always
+    restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - grafana_data:/var/lib/grafana
@@ -69,16 +66,15 @@ services:
       - front-tier
     depends_on:
       - prometheus
-{% if domain_name_enable and domain_name and domain_grafana %}
-      - nginx-proxy
+    {% if domain_name_enable and domain_name and domain_grafana %}
     environment:
       - VIRTUAL_HOST={{ domain_grafana }}.{{ domain_name }}
       - VIRTUAL_PORT=3000
-{% endif %}
+    {% endif %}
 
   ping:
     image: prom/blackbox-exporter:latest
-    restart: always
+    restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./blackbox/config:/config
@@ -95,7 +91,7 @@ services:
 
   speedtest:
     image: miguelndecarvalho/speedtest-exporter:latest
-    restart: always
+    restart: unless-stopped
     expose:
       - 9798
     ports:
@@ -105,7 +101,7 @@ services:
 
   nodeexp:
     image: prom/node-exporter:latest
-    restart: always
+    restart: unless-stopped
     privileged: true
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -121,3 +117,17 @@ services:
       - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
     networks:
       - back-tier
+
+  wireguard:
+    image: mindflavor/prometheus-wireguard-exporter
+    restart: unless-stopped
+    volumes:
+      - /etc/wireguard:/etc/wireguard:ro
+    command: 
+      - "-a" 
+      - "true" 
+      - "-n"
+      - "/etc/wireguard/wg0.conf"
+    cap_add:
+      - NET_ADMIN
+    network_mode: host
